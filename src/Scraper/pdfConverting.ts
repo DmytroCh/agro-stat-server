@@ -63,18 +63,20 @@ async function bufferize(url: string) {
     });
   }
 
-const convertCountryScalePrices = (page: string[][]) => {
-    console.log(page[0]);
+const convertCountryScalePrices = (date: Date, page: string[][]) => {
     return {
-        "wheat-2": page[5][0],
-        "wheat-3": page[7][0],
-        "wheat-4": page[9][0],
-        "rye": page[11][0],
-        "corn": page[13][0],
-        "barley": page[15][0],
-        "sunflower": page[17][0],
-        "soybean": page[19][0],
-        "buckwheat": page[21][0]
+        "date": date.toISOString(),
+        "prices": {
+            "wheat-2": page[5][0],
+            "wheat-3": page[7][0],
+            "wheat-4": page[9][0],
+            "rye": page[11][0],
+            "corn": page[13][0],
+            "barley": page[15][0],
+            "sunflower": page[17][0],
+            "soybean": page[19][0],
+            "buckwheat": page[21][0]
+        }
     }
 }
 
@@ -83,14 +85,14 @@ export const drawParse = async (pdfUrl: string) => {
     const buffer = await bufferize(url);
     let lines = await readlines(buffer, 1);
     lines = await JSON.parse(JSON.stringify(lines));
-    console.log("Type", typeof(lines))
+    console.log(lines)
 };
 
 // Return avg prices in country
-export const countryScaleParse = async (pdfUrl: string) => {
+export const countryScaleParse = async (date: Date, pdfUrl: string) => {
     const url = pdfUrl;
     const buffer = await bufferize(url);
     const lines = await readlines(buffer, 1);
     const linesJson = await JSON.parse(JSON.stringify(lines));
-    return convertCountryScalePrices(linesJson[1]);
+    return convertCountryScalePrices(date, linesJson[1]);
 };
