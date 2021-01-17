@@ -93,6 +93,7 @@ export const countryScaleParse = async (date: Date, pdfUrl: string) => {
     const url = pdfUrl;
     const buffer = await bufferize(url);
     const lines = await readlines(buffer, 1);
+    console.log(lines);
     const linesJson = await JSON.parse(JSON.stringify(lines));
     return convertCountryScalePrices(date, linesJson[1]);
 };
