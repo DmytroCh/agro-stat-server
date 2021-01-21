@@ -6,7 +6,10 @@ import { CurrencyCodeRecord } from "currency-codes";
 import { Crop, Price } from "./types";
 
 
-export const saveCrop = async (priceObject: Price) => {
+export const saveCropPrice = async (priceObject: Price) => {
+    /**
+     * Save price of specific crop to DB agro-stat-db.prices
+     */
     const cropId = await getCropId(priceObject.cropName);
     pool.connect((err, client, done) => {
         if (err) throw new Error();
@@ -14,14 +17,15 @@ export const saveCrop = async (priceObject: Price) => {
         client.query('INSERT INTO prices (crop_name_id, data_date, country, currency, price) VALUES ($1,$2,$3,$4,$5);',
                     [cropId, dateString, priceObject.country, priceObject.currency, priceObject.price])
         .then(() => {
+            client.release();
             console.log("Reccord was added");
         })
         .catch(e => {
+            client.release();
             console.error('query error', e.message, e.stack)
         })
     });
 }
-
 
 const getCropId = async (cropName:Crop): Promise<number> => {
     const client = await pool.connect();
@@ -44,6 +48,22 @@ export const getPricesForSpecificCrop = async (cropName:Crop): Promise<any[]> =>
                                         [cropId]);
         console.log('Prices were recived', result.rows);
         return parseResponseToPriceObjects(result.rows);
+    }catch(e){
+        console.error('query error', e.message, e.stack);
+    }finally {
+        client.release()
+    }
+}
+
+export const getLastPricesUpdateDate = async (): Promise<Date> => {
+    const client = await pool.connect();
+    try{
+        const result = await client.query("SELECT data_date FROM prices ORDER BY data_date DESC LIMIT 1");
+        console.log('Newest date were recived', result.rows);
+        if (result.rows.length > 0)
+            return new Date(result.rows[0].data_date);
+        else
+            return new Date("1970-01-30T22:00:00.000Z"); // no reccords in DB
     }catch(e){
         console.error('query error', e.message, e.stack);
     }finally {

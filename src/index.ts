@@ -1,3 +1,4 @@
+import { number } from "currency-codes";
 import express from "express";
 // import * as controller from "./Controllers/apiController"
 import * as cron from "node-cron"
@@ -13,8 +14,15 @@ const port = 8080; // default port to listen
 app.get("/", async(req: express.Request, res: express.Response): Promise<void> => {
     // controller.pricesController(req, res)
     // db.saveCrop(Crop.wheat2, Country.UKR, new Date(), 234, Currency.UAH);
-    const response = await db.getPricesForSpecificCrop(Crop.wheat2);
-    console.log(response);
+    /*const response = await db.saveCropPrice({
+        cropName: Crop.wheat3,
+        country: Country.UKR,
+        date: new Date(),
+        price: 12345,
+        currency: Currency.UAH
+    });
+    console.log(response);*/
+    updateData();
 });
 
 // start the Express server

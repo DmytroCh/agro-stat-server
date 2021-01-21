@@ -1,4 +1,7 @@
 import https from 'https'
+import { ApiCropName } from '../DataBase/types';
+import { Crop } from '../DataBase/types';
+import { CropsPrices } from '../DataBase/types';
 const pdfreader = require('pdfreader') // this lib does not have @types, so js syntax were used
 // Docs: https://www.npmjs.com/package/pdfreader
 
@@ -63,37 +66,57 @@ async function bufferize(url: string) {
     });
   }
 
-const convertCountryScalePrices = (date: Date, page: string[][]) => {
+
+
+const convertCountryScalePrices = (date: Date, page: string[][]): CropsPrices => {
+    console.log(date);
     return {
-        "date": date.toISOString(),
+        "date": date,
         "prices": {
-            "wheat-2": page[5][0],
-            "wheat-3": page[7][0],
-            "wheat-4": page[9][0],
-            "rye": page[11][0],
-            "corn": page[13][0],
-            "barley": page[15][0],
-            "sunflower": page[17][0],
-            "soybean": page[19][0],
-            "buckwheat": page[21][0]
+            "wheat_2": findCropPrice(ApiCropName.wheat2, page),
+            "wheat_3": findCropPrice(ApiCropName.wheat3, page),
+            "wheat_4": findCropPrice(ApiCropName.wheat4, page),
+            "rye": findCropPrice(ApiCropName.rye, page),
+            "corn": findCropPrice(ApiCropName.corn, page),
+            "barley": findCropPrice(ApiCropName.barley, page),
+            "sunflower": findCropPrice(ApiCropName.sunflower, page),
+            "soybean": findCropPrice(ApiCropName.soybean, page),
+            "buckwheat": findCropPrice(ApiCropName.buckwheat, page)
         }
     }
 }
 
-export const drawParse = async (pdfUrl: string) => {
+const findCropPrice = (cropName: ApiCropName, page: string[][]): number => {
+    let mainIndex = -1;
+    let index = -1;
+    for(let i = 0; mainIndex < 0 && i < page.length; i ++){
+        index = page[i].findIndex((el) => el[0].includes(cropName));
+        if (index > 0)
+            mainIndex = i;
+    }
+    if(index < 0){
+        console.log(page);
+        throw Error(`Crop not found: ${cropName}`);
+    }else {
+        const price = parseInt(page[1][index + 1][0].replace(/\s+/g, ''), 10); // remove spaces and parse to int
+        return price;
+    }
+}
+
+/*export const drawParse = async (pdfUrl: string) => {
     const url = pdfUrl;
     const buffer = await bufferize(url);
     let lines = await readlines(buffer, 1);
     lines = await JSON.parse(JSON.stringify(lines));
-    console.log(lines)
-};
+};*/
 
 // Return avg prices in country
-export const countryScaleParse = async (date: Date, pdfUrl: string) => {
+export const countryScaleParse = async (date: Date, pdfUrl: string): Promise<CropsPrices> => {
     const url = pdfUrl;
     const buffer = await bufferize(url);
     const lines = await readlines(buffer, 1);
-    console.log(lines);
+    // console.log(typeof(lines));
     const linesJson = await JSON.parse(JSON.stringify(lines));
-    return convertCountryScalePrices(date, linesJson[1]);
+    // console.log(linesJson[1]);
+    return convertCountryScalePrices(date, linesJson);
 };
