@@ -1,12 +1,22 @@
 import express from "express";
-import { statApi } from "../Scraper/apiAdapter";
+import { Crop } from "../DataBase/types";
+import { dbGetPricesForSpecificCrop } from "./dbController";
 
 
-/*export const pricesController = (req: express.Request, res: express.Response): void => {
-    const URL = "https://agro.me.gov.ua/ua/investoram/monitoring-stanu-apk/riven-serednozvazhenih-cin-na-osnovni-vidi-silskogospodarskoyi-produkciyi"
-    const api = statApi()
-    api.get(URL).then(async resp => {
-        const data = await getFormatedData(resp.data);
-        res.send(data);
-    }).catch(console.error);
-}*/
+export const pricesController = async (req: express.Request, res: express.Response): Promise<void> => {
+    if(req.query.crop){
+        const crop = req.query.crop;
+        if(Object.values(Crop).includes(crop as Crop)){
+            try{
+                const data = await dbGetPricesForSpecificCrop(crop as Crop);
+                res.status(200).send(data);
+            }catch(e){
+                res.status(500).send("Something went wrong");
+            }
+        }else {
+            res.status(404).send("Incorrect crop name");
+        }
+    }else{
+        res.status(404).send("crop is obligated parameter");
+    }
+}
