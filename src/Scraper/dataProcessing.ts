@@ -1,7 +1,7 @@
 import $ from 'cheerio'
 import { countryScaleParse } from './pdfConverting'
 import { statApi } from "./apiAdapter";
-import { dbGetPricesUpdateDate, dbSavePriceForCrop } from '../DataBase/dbController';
+import { dbGetPricesUpdateDate, dbSavePriceForCrop } from '../Controllers/dbController';
 import { Country, Crop, CropsPrices, Currency, Price } from '../DataBase/types';
 
 
@@ -11,7 +11,7 @@ async function getFormatedData(htmlResponse: string): Promise<Price[]> {
     const criticalDate = new Date("2019-07-13T22:00:00.000Z"); // before this date were incorrect data
     const meanResult = [];
     const result = new Array<Price>();
-    for(let i = 0; i < 3; i++){
+    for(let i = 0; i < aTags.length; i++){
         const url = aTags[i].attribs.href;
         const dataDate = getDate(url);
         if (dataDate.getTime() > lastPricesUpdateDate.getTime() &&
@@ -38,15 +38,24 @@ function getDate(url: string): Date {
     ];
     const stringDate = url.slice(-16);
     const index = regexps.findIndex(regexp => stringDate.match(regexp));
+    let date = new Date();
     switch (index){
         case 0:
-            return new Date(stringDate.slice(2, -4).replace(/(\d{2})_(\d{2})_(\d{4})/, "$2/$1/$3"));
+            date = new Date(stringDate.slice(2, -4).replace(/(\d{2})_(\d{2})_(\d{4})/, "$2/$1/$3"));
+            date.setHours(date.getHours() + 2);
+            return date;
         case 1:
-            return new Date(stringDate.slice(4, -4).replace(/(\d{2})(\d{2})(\d{4})/, "$2/$1/$3"));
+            date = new Date(stringDate.slice(4, -4).replace(/(\d{2})(\d{2})(\d{4})/, "$2/$1/$3"));
+            date.setHours(date.getHours() + 2);
+            return date;
         case 2:
-            return new Date(stringDate.slice(2, -6).replace(/(\d{2})(\d{2})(\d{4})/, "$2/$1/$3"));
+            date = new Date(stringDate.slice(2, -6).replace(/(\d{2})(\d{2})(\d{4})/, "$2/$1/$3"));
+            date.setHours(date.getHours() + 2);
+            return date;
         case 3:
-            return new Date(stringDate.slice(2, -4).replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
+            date = new Date(stringDate.slice(2, -4).replace(/(\d{2})\.(\d{2})\.(\d{4})/, "$2/$1/$3"));
+            date.setHours(date.getHours() + 2);
+            return date;
         default:
             throw Error(`${stringDate} does not match any patterns`);
     }
@@ -72,11 +81,15 @@ export async function proceedScraping(): Promise<void> {
     console.log("Start data update");
     const url = "https://agro.me.gov.ua/ua/investoram/monitoring-stanu-apk/riven-serednozvazhenih-cin-na-osnovni-vidi-silskogospodarskoyi-produkciyi";
     const api = statApi();
-    await api.get(url).then(async resp => {
+    await api.get(url)
+    .then(async resp => {
         const data = await getFormatedData(resp.data);
-        console.log(data);
-        data.forEach(price => dbSavePriceForCrop(price));
-        // res.send(data); // here must be database update
-    }).catch(console.error);
-    console.log("Data update was finished");
+        console.log(data.length, data);
+        const promises = data.map(async price => { // forEach can't be used instead of map as it does not return Promise and map() does
+            const promise = await dbSavePriceForCrop(price);
+            return promise;
+        });
+        Promise.all(promises).then(() => console.log("Data update was finished"));
+    })
+    .catch(console.error);
 }

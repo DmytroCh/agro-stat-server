@@ -1,5 +1,5 @@
-import { CropsPrices, Price } from "./types"
-import { getLastPricesUpdateDate, saveCropPrice } from "./dbOperations"
+import { Crop, CropsPrices, Price } from "../DataBase/types"
+import { getLastPricesUpdateDate, getPricesForSpecificCrop, saveCropPrice } from "../DataBase/dbOperations"
 /*export const getPrices = (): CropsPrices => {
     return {
         "date": new Date("2021-01-05T23:00:00.000Z"),
@@ -18,11 +18,14 @@ import { getLastPricesUpdateDate, saveCropPrice } from "./dbOperations"
 }*/
 
 export const dbSavePriceForCrop = async (price: Price) => {
-    const date = await saveCropPrice(price);
-    return date;
+    return saveCropPrice(price);
 }
 
 export const dbGetPricesUpdateDate = async (): Promise<Date> => {
     const date = await getLastPricesUpdateDate();
     return date;
+}
+
+export const dbGetPricesForSpecificCrop = async (cropName: Crop): Promise<Price[]> => {
+    return getPricesForSpecificCrop(cropName);
 }

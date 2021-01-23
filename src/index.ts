@@ -3,6 +3,7 @@ import express from "express";
 // import * as controller from "./Controllers/apiController"
 import * as cron from "node-cron"
 import { updateData } from "./Controllers/cronController"
+import { dbGetPricesForSpecificCrop } from "./Controllers/dbController";
 import * as db from "./DataBase/dbOperations"
 import { Country, Crop, Currency } from "./DataBase/types"
 
@@ -12,6 +13,7 @@ const port = 8080; // default port to listen
 
 // define a route handler for the default home page
 app.get("/", async(req: express.Request, res: express.Response): Promise<void> => {
+    res.send(await dbGetPricesForSpecificCrop(Crop.wheat2));
     // controller.pricesController(req, res)
     // db.saveCrop(Crop.wheat2, Country.UKR, new Date(), 234, Currency.UAH);
     /*const response = await db.saveCropPrice({
@@ -22,7 +24,6 @@ app.get("/", async(req: express.Request, res: express.Response): Promise<void> =
         currency: Currency.UAH
     });
     console.log(response);*/
-    updateData();
 });
 
 // start the Express server
@@ -30,7 +31,7 @@ app.listen(port, () => {
     console.log(`server started at http://localhost:${port}`);
 });
 
-// Run cron job. Download data every week and save them to database
-// cron.schedule('*/5 * * * *', () => {
- //   updateData();
-// });
+// Run data srapping everyday.
+cron.schedule('0 1 * * *', () => {
+    updateData();
+});
