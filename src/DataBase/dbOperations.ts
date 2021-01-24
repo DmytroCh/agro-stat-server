@@ -84,5 +84,8 @@ const parseResponseToPriceObjects = (response: any[]): Price[] => {
             currency: el.currency
         });
     });
+    res.sort((a, b) => {
+        return a.date.getTime() - b.date.getTime();
+    });
     return res;
 }
