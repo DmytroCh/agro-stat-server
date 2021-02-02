@@ -5,7 +5,7 @@ import { pricesController } from "./Controllers/apiController";
 import { updateData } from "./Controllers/cronController"
 
 const app = express();
-const port = 8080; // default port to listen
+const port = 3003; // default port to listen
 
 app.use(cors());
 // define a route handler for the default home page
