@@ -40,6 +40,9 @@ https://linuxhint.com/run_postgresql_docker_compose/
 
 https://www.pgadmin.org/download/pgadmin-4-apt/
 
+### Linux screen (useful for detached mode in VPS)
+
+https://linuxize.com/post/how-to-use-linux-screen/
   
 ### docker-compose.yml
 
@@ -50,6 +53,17 @@ install: https://docs.docker.com/compose/install/
     docker-compose down 
     
     docker exec -it <mycontainer> bash
+
+### Backup database
+We need backups for save our data or use it for data migration e.g. from one server to another.
+Here is a good answer: https://stackoverflow.com/questions/24718706/backup-restore-a-dockerized-postgresql-database/29913462#29913462
+
+    docker exec -t your-db-container pg_dumpall -c -U postgres > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+
+### Restore database
+If we want to load backup to our database. After `docker-compose.yml` run enaugh to run next command:
+
+    cat your_dump.sql | docker exec -i your-db-container psql -U postgres
 
 # Questions
 
