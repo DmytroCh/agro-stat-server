@@ -54,6 +54,8 @@ install: https://docs.docker.com/compose/install/
     
     docker exec -it <mycontainer> bash
 
+    docker exec -it <mycontainer> psql -U postgres
+
 ### Backup database
 We need backups for save our data or use it for data migration e.g. from one server to another.
 Here is a good answer: https://stackoverflow.com/questions/24718706/backup-restore-a-dockerized-postgresql-database/29913462#29913462
