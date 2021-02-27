@@ -11,6 +11,7 @@ export const pricesController = async (req: express.Request, res: express.Respon
                 const data = await dbGetPricesForSpecificCrop(crop as Crop);
                 res.status(200).send(data);
             }catch(e){
+                console.error(e);
                 res.status(500).send("Something went wrong");
             }
         }else {
