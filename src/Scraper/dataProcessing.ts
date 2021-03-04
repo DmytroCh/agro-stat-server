@@ -3,6 +3,7 @@ import { countryScaleParse } from './pdfConverting'
 import { statApi } from "./apiAdapter";
 import { dbGetPricesUpdateDate, dbSavePriceForCrop } from '../Controllers/dbController';
 import { Country, Crop, CropsPrices, Currency, Price } from '../DataBase/types';
+import * as rax from 'retry-axios';
 
 
 async function getFormatedData(htmlResponse: string): Promise<Price[]> {
@@ -77,19 +78,30 @@ function cropPricesToListOfPrices(cropsPrices: CropsPrices): Price[] {
     return result;
 }
 
-export async function proceedScraping(): Promise<void> {
+export function proceedScraping(): void {
     console.log("Start data update");
     const url = "https://agro.me.gov.ua/ua/investoram/monitoring-stanu-apk/riven-serednozvazhenih-cin-na-osnovni-vidi-silskogospodarskoyi-produkciyi";
     const api = statApi();
-    await api.get(url)
-    .then(async resp => {
-        const data = await getFormatedData(resp.data);
-        console.log(data.length, data);
-        const promises = data.map(async price => { // forEach can't be used instead of map as it does not return Promise and map() does
-            const promise = await dbSavePriceForCrop(price);
-            return promise;
-        });
-        Promise.all(promises).then(() => console.log("Data update was finished"));
-    })
-    .catch(console.error);
+    const interceptorId = rax.attach(api);
+    api({
+        url,
+        raxConfig: {
+            retry: 3,
+            instance: api,
+            noResponseRetries: 3,
+            onRetryAttempt: err => {
+                const cfg = rax.getConfig(err);
+                console.log(`Retry request for statistics #${cfg.currentRetryAttempt}`);
+            }
+        }})
+        .then(async resp => {
+            const data = await getFormatedData(resp.data);
+            console.log(data.length, data);
+            const promises = data.map(async price => { // forEach can't be used instead of map as it does not return Promise and map() does
+                const promise = await dbSavePriceForCrop(price);
+                return promise;
+            });
+            Promise.all(promises).then(() => console.log("Data update was finished"));
+        })
+        .catch(console.error);
 }

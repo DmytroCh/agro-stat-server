@@ -34,6 +34,7 @@
     "pdf2json": "^1.2.0",
     "pdfreader": "^1.2.8",
     "pg": "^8.5.1",
+    "retry-axios": "^2.4.0",
     "save": "^2.4.0"
   },
   "devDependencies": {
