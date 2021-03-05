@@ -56,3 +56,8 @@ export enum Country {
 export enum Currency {
     UAH = "UAH"
 }
+
+export type Range = {
+    start: string,
+    end: string
+}

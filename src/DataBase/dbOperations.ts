@@ -1,9 +1,5 @@
 import pool from "./dbConnector";
-import * as ISO3166 from "iso-3166-1"; // countries
-import * as ISO4217 from "currency-codes";
-// import { Country } from "iso-3166-1/dist/iso-3166";
-import { CurrencyCodeRecord } from "currency-codes";
-import { Crop, Price } from "./types";
+import { Crop, Price, Range } from "./types";
 
 
 export const saveCropPrice = async (priceObject: Price) => {
@@ -54,6 +50,25 @@ export const getPricesForSpecificCrop = async (cropName:Crop): Promise<Price[]> 
         client.release()
     }
 }
+
+export const getPricesForSpecificCropAndRange = async (cropName:Crop, range: Range): Promise<Price[]> => {
+    const client = await pool.connect();
+    const cropId = await getCropId(cropName);
+    const start = range.start;
+    const end = range.end;
+    try{
+        const result = await client.query(
+            "SELECT * FROM prices LEFT JOIN crops ON prices.crop_name_id = crops.crop_id WHERE crop_name_id = $1 AND prices.data_date BETWEEN $2 AND $3",
+            [cropId, start, end]
+        );
+        return parseResponseToPriceObjects(result.rows);
+    }catch(e){
+        console.error('query error', e.message, e.stack);
+    }finally {
+        client.release()
+    }
+}
+
 
 export const getLastPricesUpdateDate = async (): Promise<Date> => {
     const client = await pool.connect();
