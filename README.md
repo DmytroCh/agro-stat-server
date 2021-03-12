@@ -77,6 +77,11 @@ If we want to load backup to our database. After `docker-compose.yml` run enaugh
 
     cat your_dump.sql | docker exec -i your-db-container psql -U postgres
 
+### Forward remote port
+Can be used to forward remote database
+
+    ssh -L 5432:server_ip:5432 <user>@<server_ip>
+
 # Questions
 
 1) How to copy init.sql to docker-entrypoint-initdb.d in container during docker-compose run ?

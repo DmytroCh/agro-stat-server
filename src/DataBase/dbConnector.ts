@@ -5,7 +5,7 @@ export default new Pool ({
     idleTimeoutMillis: 30000,
     database:'agro-stat-db',
     port: 5432,
-    user: 'postgres',
-    password: 'postgres',
+    user: 'agrostat',
+    password: 'agrostat',
     host: 'localhost'
 });
