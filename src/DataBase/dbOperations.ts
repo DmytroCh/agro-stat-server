@@ -94,7 +94,7 @@ const parseResponseToPriceObjects = (response: any[]): Price[] => {
         res.push({
             cropName: el.crop_name,
             country: el.country,
-            date: new Date(el.data_date),
+            date: el.data_date,
             price: +el.price,
             currency: el.currency
         });
