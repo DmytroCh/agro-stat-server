@@ -7,5 +7,5 @@ export default new Pool ({
     port: 5432,
     user: 'agrostat',
     password: 'agrostat',
-    host: 'localhost'
+    host: 'db'
 });
