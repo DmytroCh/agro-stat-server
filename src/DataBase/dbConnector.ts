@@ -7,5 +7,5 @@ export default new Pool ({
     port: 5432,
     user: 'postgres',
     password: 'postgres',
-    host: 'localhost'
+    host: 'db'
 });
