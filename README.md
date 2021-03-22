@@ -96,11 +96,9 @@ https://github.com/docker/compose/issues/5523
 
     docker exec -u postgres pg_test psql postgres postgres -f docker-entrypoint-initdb.d/dump.sql
 
-# TODO
+# Add SSL Certificate to Apache
+https://help.zerossl.com/hc/en-us/articles/360058295854-Installing-SSL-Certificate-on-Apache
+https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension
 
- - fix postgres serialization issue
- - create docker-compose.yml for whole project
- - volumes backups 
-
-
-
+don't forget to restart apache
+    systemctl restart apache2
