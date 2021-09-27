@@ -80,7 +80,7 @@ function cropPricesToListOfPrices(cropsPrices: CropsPrices): Price[] {
 
 export function proceedScraping(): void {
     console.log("Start data update");
-    const url = "https://agro.me.gov.ua/ua/investoram/monitoring-stanu-apk/riven-serednozvazhenih-cin-na-osnovni-vidi-silskogospodarskoyi-produkciyi";
+    const url = "https://minagro.gov.ua/ua/investoram/monitoring-stanu-apk/riven-serednozvazhenih-cin-na-osnovni-vidi-silskogospodarskoyi-produkciyi";
     const api = statApi();
     const interceptorId = rax.attach(api);
     api({
